@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 학생 투표 (기기당 1건, 덮어쓰기 가능 / 삭제 불가)
+    match /uniform2026_votes/{deviceId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.keys().hasOnly(
+          ['outer','top','bottom','hearts','grade','gender','comment','ts'])
+        && request.resource.data.comment is string
+        && request.resource.data.comment.size() <= 80;
+      allow delete: if false;
+    }
+
+    // 블라인드·투표 열기 설정 (관리 화면)
+    match /uniform2026_settings/{doc} {
+      allow read: if true;
+      allow write: if request.resource.data.keys().hasOnly(['blind','voteOpen']);
+    }
+
+    // PDF에서 추가한 디자인 (이미지 1건 약 1MB 이하)
+    match /uniform2026_items/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.src is string
+        && request.resource.data.src.size() < 1000000;
+      allow delete: if true;
+      allow update: if false;
+    }
+  }
+}

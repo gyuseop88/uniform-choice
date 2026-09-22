@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>대룡중 교복 디자인 입혀보기</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f5f7; --panel:#ffffff; --ink:#1d2330; --sub:#667085; --line:#e4e7ec;
+  --pri:#2855d8; --pri-soft:#e8eefc; --acc:#e8505b; --ok:#16a34a;
+  --stage:#eef1f6; --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:Pretendard,-apple-system,"Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font:inherit}
+.hidden{display:none!important}
+
+/* ===== 입장 화면 ===== */
+#gate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a8a,#2855d8 55%,#5b8def);z-index:100;padding:16px}
+.gate-card{background:#fff;border-radius:20px;padding:36px 32px;width:100%;max-width:380px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.gate-card h1{font-size:22px;margin-bottom:6px}
+.gate-card p{color:var(--sub);font-size:14px;margin-bottom:22px;line-height:1.5}
+.gate-card input{width:100%;padding:14px;border:2px solid var(--line);border-radius:12px;font-size:18px;text-align:center;letter-spacing:2px;outline:none}
+.gate-card input:focus{border-color:var(--pri)}
+.gate-card .btn{width:100%;margin-top:12px}
+.gate-err{color:var(--acc);font-size:13px;min-height:20px;margin-top:8px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 18px;border-radius:12px;font-weight:700;background:var(--pri);color:#fff;transition:.15s}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:var(--pri-soft);color:var(--pri)}
+.btn.line{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.btn.red{background:var(--acc)}
+.btn.sm{padding:7px 12px;font-size:13px;border-radius:10px}
+.btn:disabled{opacity:.45;cursor:default}
+
+/* ===== 헤더 ===== */
+header{height:58px;display:flex;align-items:center;gap:12px;padding:0 18px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+header h1{font-size:17px;font-weight:800;white-space:nowrap}
+header h1 small{font-weight:500;color:var(--sub);font-size:13px;margin-left:6px}
+header .sp{flex:1}
+.pill{font-size:12px;padding:4px 10px;border-radius:99px;background:#fff4e5;color:#b45309;font-weight:700}
+
+/* ===== 메인 2분할 ===== */
+main{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(360px,1fr);height:calc(100vh - 58px)}
+#catalog{display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--line)}
+.tabs{display:flex;gap:6px;padding:12px 16px 0;background:var(--panel);flex-wrap:wrap}
+.tab{padding:9px 16px;border-radius:10px 10px 0 0;font-weight:700;color:var(--sub);border:1px solid transparent;border-bottom:none;position:relative;top:1px}
+.tab.on{background:var(--bg);color:var(--ink);border-color:var(--line)}
+.tab .cnt{font-size:12px;color:var(--sub);font-weight:500;margin-left:4px}
+.filters{display:flex;gap:6px;padding:12px 16px;flex-wrap:wrap;border-top:1px solid var(--line);align-items:center}
+.chip{padding:7px 13px;border-radius:99px;background:#fff;border:1px solid var(--line);font-size:14px;font-weight:600}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.grid{flex:1;overflow-y:auto;padding:4px 16px 24px;display:grid;grid-auto-rows:max-content;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px;align-content:start}
+.card{background:#fff;border:2px solid transparent;border-radius:var(--radius);overflow:hidden;position:relative;transition:.12s;box-shadow:0 1px 2px rgba(16,24,40,.06)}
+.card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(16,24,40,.12)}
+.card.on{border-color:var(--pri);box-shadow:0 0 0 3px var(--pri-soft)}
+.card .ph{aspect-ratio:3/4;background:#f7f8fa;display:flex;align-items:center;justify-content:center;padding:6px}
+.card img{max-width:100%;max-height:100%;object-fit:contain}
+.card .cap{padding:6px 8px 8px;font-size:12px;line-height:1.35}
+.card .cap b{display:block;font-size:13px}
+.card .cap span{color:var(--sub)}
+.card .badge{position:absolute;top:6px;left:6px;font-size:11px;font-weight:800;padding:2px 7px;border-radius:6px;color:#fff}
+.card .heart{position:absolute;top:4px;right:4px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.9);font-size:16px;display:flex;align-items:center;justify-content:center}
+.card .heart.on{color:var(--acc)}
+.empty{grid-column:1/-1;text-align:center;color:var(--sub);padding:60px 0}
+
+/* ===== 입혀보기 ===== */
+#fitting{display:flex;flex-direction:column;min-height:0;background:var(--panel)}
+.stage{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 12px 0;background:linear-gradient(180deg,#f8fafc,var(--stage))}
+.avatar{position:relative;display:flex;flex-direction:column;align-items:center;min-height:0}
+.avatar svg{flex:1;min-height:0;width:100%;height:100%}
+.avatar .who{font-size:13px;font-weight:700;color:var(--sub);background:#fff;padding:3px 12px;border-radius:99px;border:1px solid var(--line);margin-bottom:4px}
+.outfit{padding:12px 14px;border-top:1px solid var(--line)}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.slot{border:1px dashed #cfd4dc;border-radius:12px;padding:6px;display:flex;gap:7px;align-items:center;min-height:62px;background:#fafbfc;position:relative}
+.slot.filled{border-style:solid;border-color:var(--line);background:#fff}
+.slot img{width:44px;height:50px;object-fit:contain;background:#f3f4f6;border-radius:8px}
+.slot .t{font-size:11px;color:var(--sub);font-weight:700}
+.slot .n{font-size:12px;font-weight:700;line-height:1.3}
+.slot .x{position:absolute;top:3px;right:5px;color:#98a2b3;font-size:15px}
+.slot .x:hover{color:var(--acc)}
+.actions{display:flex;gap:8px;margin-top:10px}
+.actions .btn{flex:1}
+
+/* ===== 모달 ===== */
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;z-index:60;padding:16px}
+.mbox{background:#fff;border-radius:18px;width:100%;max-width:520px;max-height:92vh;overflow:auto;padding:24px}
+.mbox.wide{max-width:1100px}
+.mbox h2{font-size:19px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.mbox h2 .sp{flex:1}
+.mbox h3{font-size:15px;margin:18px 0 8px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.row label{font-size:13px;color:var(--sub);font-weight:700;min-width:54px}
+.row select,.row input[type=text],.row textarea{padding:9px 11px;border:1px solid var(--line);border-radius:10px;flex:1;min-width:0}
+.combo-preview{display:flex;gap:8px;margin:6px 0 14px}
+.combo-preview div{flex:1;background:#f7f8fa;border-radius:10px;padding:6px;text-align:center;font-size:12px}
+.combo-preview img{height:70px;object-fit:contain;display:block;margin:0 auto 4px}
+.note{font-size:12.5px;color:var(--sub);line-height:1.55;background:#f8fafc;border-radius:10px;padding:10px 12px}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#111827;color:#fff;padding:12px 20px;border-radius:12px;font-weight:600;z-index:90;opacity:0;transition:.25s;pointer-events:none}
+.toast.show{opacity:1}
+
+/* 관리자 */
+.admin-tabs{display:flex;gap:6px;margin-bottom:14px;border-bottom:1px solid var(--line)}
+.admin-tabs button{padding:9px 14px;font-weight:700;color:var(--sub);border-bottom:3px solid transparent}
+.admin-tabs button.on{color:var(--pri);border-color:var(--pri)}
+.stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:6px}
+.stat{background:#f8fafc;border-radius:12px;padding:12px}
+.stat b{font-size:24px;display:block}
+.stat span{font-size:12px;color:var(--sub)}
+.rank{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.rank .r{display:flex;gap:8px;align-items:center;background:#f8fafc;border-radius:10px;padding:6px}
+.rank .r img{width:42px;height:50px;object-fit:contain;background:#fff;border-radius:6px}
+.rank .r .no{font-weight:800;color:var(--pri);width:18px}
+.rank .r small{color:var(--sub);display:block}
+.bar{height:6px;background:var(--pri-soft);border-radius:4px;margin-top:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--pri)}
+table.combo{width:100%;border-collapse:collapse;font-size:13px}
+table.combo td,table.combo th{padding:6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+table.combo img{height:44px;object-fit:contain;vertical-align:middle}
+.switch{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:14px;cursor:pointer}
+.switch input{width:40px;height:22px;appearance:none;background:#cbd5e1;border-radius:99px;position:relative;transition:.2s;cursor:pointer}
+.switch input:checked{background:var(--pri)}
+.switch input::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s}
+.switch input:checked::after{left:21px}
+
+/* PDF 추가 */
+.pdf-pages{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;max-height:260px;overflow:auto;padding:4px}
+.pdf-pages .pg{border:2px solid var(--line);border-radius:8px;overflow:hidden;position:relative;background:#fff}
+.pdf-pages .pg.hit{border-color:#f59e0b}
+.pdf-pages .pg.on{border-color:var(--pri);box-shadow:0 0 0 3px var(--pri-soft)}
+.pdf-pages .pg img{width:100%;display:block}
+.pdf-pages .pg span{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:2px 4px}
+.crop-wrap{display:grid;grid-template-columns:1fr 260px;gap:14px;margin-top:12px}
+.crop-area{position:relative;background:#f1f5f9;border-radius:10px;overflow:auto;max-height:62vh;user-select:none}
+.crop-area canvas{display:block;max-width:100%;cursor:crosshair}
+.crop-box{position:absolute;border:2px solid var(--pri);background:rgba(40,85,216,.12);pointer-events:none}
+.cut-preview{background:repeating-conic-gradient(#e5e7eb 0 25%,#fff 0 50%) 50%/16px 16px;border-radius:10px;height:260px;display:flex;align-items:center;justify-content:center}
+.cut-preview canvas{max-width:100%;max-height:100%}
+
+/* ===== 반응형 ===== */
+@media (max-width:900px){
+  main{grid-template-columns:1fr;grid-template-rows:auto auto;height:auto}
+  #fitting{order:-1;position:sticky;top:58px;z-index:10;border-bottom:1px solid var(--line)}
+  .stage{height:46vh;flex:none}
+  #catalog{border-right:none}
+  .grid{overflow:visible}
+  header h1 small{display:none}
+  .stat-cards{grid-template-columns:repeat(2,1fr)}
+  .crop-wrap{grid-template-columns:1fr}
+}
+@media (max-width:520px){
+  header{padding:0 10px;gap:6px}
+  header h1{font-size:15px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));padding:4px 10px 24px}
+  .slots{gap:5px}.slot img{width:32px;height:40px}.slot .n{font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<!-- 입장 -->
+<div id="gate">
+  <div class="gate-card">
+    <div style="font-size:40px;margin-bottom:8px">👕</div>
+    <h1>교복 디자인 입혀보기</h1>
+    <p>대룡중학교 학생자치회 교복선정용<br>선생님께 받은 입장코드를 입력하세요.</p>
+    <input id="gateCode" type="password" placeholder="입장코드" autocomplete="off">
+    <button class="btn" id="gateBtn">입장하기</button>
+    <div class="gate-err" id="gateErr"></div>
+  </div>
+</div>
+
+<header>
+  <h1>👕 교복 디자인 입혀보기<small>대룡중 학생자치회</small></h1>
+  <span class="pill hidden" id="localPill" title="Firebase 설정 전이라 이 기기에만 저장됩니다">로컬 모드</span>
+  <div class="sp"></div>
+  <button class="btn line sm" id="btnMine">❤ 찜 <span id="heartCnt">0</span></button>
+  <button class="btn line sm hidden" id="btnAdmin">⚙ 관리</button>
+  <button class="btn line sm" id="btnOut" title="입장코드 다시 입력">나가기</button>
+</header>
+
+<main>
+  <section id="catalog">
+    <div class="tabs" id="coTabs"></div>
+    <div class="filters" id="catChips"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section id="fitting">
+    <div class="stage">
+      <div class="avatar"><div class="who">남학생</div><svg id="avM" viewBox="0 0 400 900" preserveAspectRatio="xMidYMid meet"></svg></div>
+      <div class="avatar"><div class="who">여학생</div><svg id="avF" viewBox="0 0 400 900" preserveAspectRatio="xMidYMid meet"></svg></div>
+    </div>
+    <div class="outfit">
+      <div class="slots" id="slots"></div>
+      <div class="actions">
+        <button class="btn line" id="btnReset">↺ 모두 벗기기</button>
+        <button class="btn red" id="btnSubmit">🗳 이 조합으로 투표</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 투표 모달 -->
+<div class="modal hidden" id="mVote">
+  <div class="mbox">
+    <h2>🗳 내 최애 조합 제출<span class="sp"></span><button class="btn line sm" data-close>닫기</button></h2>
+    <div class="combo-preview" id="votePreview"></div>
+    <div class="row"><label>학년</label>
+      <select id="vGrade"><option value="">선택 안 함</option><option>1</option><option>2</option><option>3</option></select>
+      <label>성별</label>
+      <select id="vGender"><option value="">선택 안 함</option><option>남</option><option>여</option></select>
+    </div>
+    <div class="row"><label>한마디</label><input type="text" id="vComment" maxlength="80" placeholder="고른 이유 (선택)"></div>
+    <p class="note">이름은 받지 않아요. 한 기기에서 다시 제출하면 <b>마지막 제출</b>만 집계됩니다.</p>
+    <div class="actions"><button class="btn red" id="btnVoteGo">제출하기</button></div>
+  </div>
+</div>
+
+<!-- 찜 목록 -->
+<div class="modal hidden" id="mMine">
+  <div class="mbox">
+    <h2>❤ 내가 찜한 디자인<span class="sp"></span><button class="btn line sm" data-close>닫기</button></h2>
+    <div class="rank" id="mineList"></div>
+    <p class="note" style="margin-top:12px">찜은 이 기기에만 저장돼요. 카드를 누르면 바로 입혀집니다.</p>
+  </div>
+</div>
+
+<!-- 관리자 -->
+<div class="modal hidden" id="mAdmin">
+  <div class="mbox wide">
+    <h2>⚙ 선생님 관리<span class="sp"></span><button class="btn line sm" data-close>닫기</button></h2>
+    <div class="admin-tabs">
+      <button class="on" data-at="stats">📊 투표 결과</button>
+      <button data-at="set">🔧 설정</button>
+      <button data-at="pdf">📄 PDF로 디자인 추가</button>
+    </div>
+
+    <div data-ap="stats">
+      <div class="row"><button class="btn sm" id="btnRefresh">새로고침</button><button class="btn line sm" id="btnCsv">CSV 내려받기</button>
+        <span style="flex:1"></span><span class="note" style="padding:6px 10px" id="statInfo"></span></div>
+      <div class="stat-cards" id="statCards"></div>
+      <div id="statBody"></div>
+    </div>
+
+    <div data-ap="set" class="hidden">
+      <h3>블라인드 모드</h3>
+      <label class="switch"><input type="checkbox" id="setBlind"> 회사 이름 가리기 (A사·B사·C사로 표시)</label>
+      <p class="note" style="margin-top:8px">학생 화면 전체에 적용돼요. 브랜드 선호가 섞이지 않도록 선정 기간에는 켜 두는 걸 권장합니다.</p>
+      <h3>투표</h3>
+      <label class="switch"><input type="checkbox" id="setVoteOpen"> 투표 받기</label>
+      <h3>입장코드 바꾸기</h3>
+      <div class="row"><input type="text" id="hashIn" placeholder="새 코드 입력"><button class="btn line sm" id="hashBtn">해시 만들기</button></div>
+      <p class="note" id="hashOut">만든 값을 index.html의 STUDENT_HASH 또는 ADMIN_HASH에 붙여 넣고 다시 올리세요.</p>
+      <h3>추가한 디자인 관리</h3>
+      <div id="customList" class="rank"></div>
+    </div>
+
+    <div data-ap="pdf" class="hidden">
+      <div class="row">
+        <label>회사</label><select id="pCo"></select>
+        <input type="file" id="pFile" accept="application/pdf" style="flex:2">
+      </div>
+      <div class="row">
+        <label class="switch"><input type="checkbox" id="pOnlyHit" checked> 품목 글자가 있는 페이지만 보기</label>
+        <span class="note" style="padding:6px 10px" id="pInfo">PDF를 고르면 이 컴퓨터 안에서만 읽어요. 업로드되지 않습니다.</span>
+      </div>
+      <div class="pdf-pages" id="pPages"></div>
+      <div class="crop-wrap hidden" id="pCropWrap">
+        <div class="crop-area" id="pCropArea"><canvas id="pCanvas"></canvas><div class="crop-box hidden" id="pBox"></div></div>
+        <div>
+          <p class="note">① 왼쪽 그림에서 <b>옷만 딱 맞게</b> 드래그하세요.<br>· 상의/겉옷: 목선~밑단<br>· 하의: 허리~바지 밑단</p>
+          <div class="row" style="margin-top:10px"><label>품목</label><select id="pCat"></select></div>
+          <div class="row"><label>배경 제거</label><input type="range" id="pTol" min="0" max="80" value="28" style="flex:1"></div>
+          <div class="cut-preview"><canvas id="pPrev"></canvas></div>
+          <div class="actions"><button class="btn" id="pSave" disabled>＋ 디자인 추가</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="items.js"></script>
+<script type="module">
+/* =====================================================================
+   설정 — 여기만 바꾸면 됩니다
+   ===================================================================== */
+const CONFIG = {
+  // 입장코드 (SHA-256 해시). 기본값: 학생 "dr2026" / 선생님 "drteacher"
+  // 바꾸는 법: 관리 화면 > 설정 아래 '코드 해시 만들기' 또는 README 참고
+  STUDENT_HASH: "7849dc51e08079a6eaea19c7541f53028196e5de8159d572e6587facd1451074",
+  ADMIN_HASH:   "67b3360aa6081abc0f8542b2a5692354ec85f180f8475329892fc7124b31260a",
+  // Firebase 웹앱 설정 (콘솔 > 프로젝트 설정 > 내 앱 > SDK 설정). 비워 두면 '로컬 모드'
+  FIREBASE: {
+    apiKey: "AIzaSyDfU4ZoOJwlRRgVvgeIzOh62ZcFaL_l28U",
+    authDomain: "uniform-choice-bedbf.firebaseapp.com",
+    projectId: "uniform-choice-bedbf",
+    storageBucket: "uniform-choice-bedbf.firebasestorage.app",
+    messagingSenderId: "385483741788",
+    appId: "1:385483741788:web:6d909ef573e434a42d2499"
+  },
+  COLLECTION_PREFIX: "uniform2026_"
+};
+
+const COMPANIES = {
+  smart:{name:"스마트", blind:"A사", color:"#2563eb"},
+  elite:{name:"엘리트", blind:"B사", color:"#16a34a"},
+  skoolooks:{name:"스쿨룩스", blind:"C사", color:"#ea580c"}
+};
+const CATS = [
+  {k:"후드집업", layer:"outer", color:"#6366f1"},
+  {k:"야구잠바", layer:"outer", color:"#0ea5e9"},
+  {k:"후드티",   layer:"top",   color:"#a855f7"},
+  {k:"맨투맨",   layer:"top",   color:"#ec4899"},
+  {k:"반팔체육복", layer:"top", color:"#f59e0b", sub:"상의"},
+  {k:"긴팔체육복", layer:"outer", color:"#10b981", sub:"상의"},
+  {k:"반팔체육복", layer:"bottom", color:"#f59e0b", sub:"하의"},
+  {k:"긴팔체육복", layer:"bottom", color:"#10b981", sub:"하의"},
+  {k:"하복생활복", layer:"top", color:"#06b6d4", sub:"상의"},
+  {k:"하복생활복", layer:"bottom", color:"#06b6d4", sub:"하의"},
+  {k:"동복생활복", layer:"bottom", color:"#64748b", sub:"하의"},
+];
+const CAT_FILTERS = ["전체","후드집업","후드티","맨투맨","야구잠바","반팔체육복","긴팔체육복","하복생활복","동복생활복"];
+const LAYERS = {outer:"겉옷", top:"상의", bottom:"하의"};
+const LAYER_ORDER = ["bottom","top","outer"];
+
+/* ---------- 유틸 ---------- */
+const $ = s=>document.querySelector(s);
+const $$ = s=>[...document.querySelectorAll(s)];
+const sha = async t=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t.trim())))].map(b=>b.toString(16).padStart(2,"0")).join("");
+const store = {
+  get(k,d){try{const v=localStorage.getItem("uf_"+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem("uf_"+k,JSON.stringify(v))}catch(e){}}
+};
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),2200)}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+let deviceId = store.get("device",null); if(!deviceId){deviceId=crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2);store.set("device",deviceId)}
+
+/* ---------- 상태 ---------- */
+const S = {
+  items: (window.UNIFORM_ITEMS||[]).slice(),
+  co: "all", cat: "전체",
+  wear: store.get("wear",{outer:null,top:null,bottom:null}),
+  hearts: new Set(store.get("hearts",[])),
+  blind: true, voteOpen: true, isAdmin:false,
+};
+const byId = id=>S.items.find(i=>i.id===id);
+const coLabel = co=>S.blind?COMPANIES[co].blind:COMPANIES[co].name;
+const itemLabel = it=>`${coLabel(it.co)} ${it.cat}${it.layer==="bottom"?" 하의":(/체육복|생활복/.test(it.cat)?" 상의":"")}`;
+
+/* ---------- Firebase (선택) ---------- */
+let db=null, fs=null;
+const FB_ON = !!CONFIG.FIREBASE.apiKey;
+async function initFirebase(){
+  if(!FB_ON){$("#localPill").classList.remove("hidden");return}
+  try{
+    const app = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+    fs = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    db = fs.getFirestore(app.initializeApp(CONFIG.FIREBASE));
+  }catch(e){console.error(e);db=null;$("#localPill").classList.remove("hidden");toast("Firebase 연결 실패 — 로컬 모드로 동작합니다")}
+}
+const col = n=>CONFIG.COLLECTION_PREFIX+n;
+async function loadSettings(){
+  let s = store.get("settings",{blind:true,voteOpen:true});
+  if(db){try{const d=await fs.getDoc(fs.doc(db,col("settings"),"main"));if(d.exists())s={...s,...d.data()}}catch(e){console.warn(e)}}
+  S.blind = s.blind!==false; S.voteOpen = s.voteOpen!==false;
+}
+async function saveSettings(){
+  const s={blind:S.blind,voteOpen:S.voteOpen};store.set("settings",s);
+  if(db){try{await fs.setDoc(fs.doc(db,col("settings"),"main"),s)}catch(e){toast("설정 저장 실패: 보안 규칙을 확인하세요")}}
+}
+async function loadCustomItems(){
+  let arr=[];
+  if(db){try{const q=await fs.getDocs(fs.collection(db,col("items")));q.forEach(d=>arr.push({...d.data(),id:d.id,custom:true}))}catch(e){console.warn(e)}}
+  else arr = store.get("customItems",[]).map(x=>({...x,custom:true}));
+  S.items = S.items.filter(i=>!i.custom).concat(arr);
+}
+async function saveVote(v){
+  if(db){await fs.setDoc(fs.doc(db,col("votes"),deviceId),v);return}
+  const all=store.get("votes",{});all[deviceId]=v;store.set("votes",all);
+}
+async function loadVotes(){
+  if(db){const q=await fs.getDocs(fs.collection(db,col("votes")));const a=[];q.forEach(d=>a.push(d.data()));return a}
+  return Object.values(store.get("votes",{}));
+}
+
+/* ---------- 아바타 ---------- */
+const AV = {
+  M:{skin:"#f1c7a5",hair:"#2b2118",shW:190,hip:430,ankle:800},
+  F:{skin:"#f3cdb0",hair:"#3a261b",shW:176,hip:430,ankle:800}
+};
+const NS="http://www.w3.org/2000/svg";
+function baseBody(g,sex,worn){
+  const a=AV[sex], cx=200; const upper=worn.top||worn.outer, lower=worn.bottom;
+  const hairM=`<path d="M143 92c0-45 26-66 57-66s57 21 57 66c-6-16-14-24-26-28-17 8-44 10-72 4-8 6-13 15-16 24z" fill="${a.hair}"/>`;
+  const hairF=`<path d="M138 110c-4-58 26-86 62-86s66 28 62 86c3 40 6 78 18 104-30 10-52 4-62-6l2-60c10-12 14-28 13-44-24 6-50 4-68-10-6 10-9 24-8 40l4 70c-12 12-34 18-58 6 14-24 19-60 15-100z" fill="${a.hair}"/>`;
+  g.innerHTML = `
+    <ellipse cx="200" cy="862" rx="120" ry="14" fill="#000" opacity=".07"/>
+    <!-- 다리 -->
+    <path d="M${cx-52} ${a.hip} L${cx-46} ${a.ankle} L${cx-14} ${a.ankle} L${cx-4} ${a.hip+40} L${cx+4} ${a.hip+40} L${cx+14} ${a.ankle} L${cx+46} ${a.ankle} L${cx+52} ${a.hip} Z" fill="${a.skin}"/>
+    <!-- 양말·신발 -->
+    <rect x="${cx-47}" y="${a.ankle-28}" width="34" height="30" rx="5" fill="#fff"/><rect x="${cx+13}" y="${a.ankle-28}" width="34" height="30" rx="5" fill="#fff"/>
+    <path d="M${cx-52} ${a.ankle} h42 q6 0 6 10 v26 h-62 q-2-26 14-36z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="3"/>
+    <path d="M${cx+10} ${a.ankle} h42 q16 10 14 36 h-62 v-26 q0-10 6-10z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="3"/>
+    <path d="M${cx-58} 834 h60 M${cx+6} 834 h60" stroke="#94a3b8" stroke-width="5"/>
+    ${upper?"":`<!-- 팔 -->
+    <path d="M${cx-a.shW/2+6} 222 q-22 110 -16 214" stroke="${a.skin}" stroke-width="30" stroke-linecap="round" fill="none"/>
+    <path d="M${cx+a.shW/2-6} 222 q22 110 16 214" stroke="${a.skin}" stroke-width="30" stroke-linecap="round" fill="none"/>
+    <!-- 기본 반팔티 -->
+    <path d="M${cx-a.shW/2} 210 q${a.shW/2} -26 ${a.shW} 0 l18 70 -30 10 -4 150 h-${a.shW-32} l-4 -150 -30 -10z" fill="#e2e8f0"/>`}
+    <!-- 기본 하의(교복 바지/치마) -->
+    ${lower?"":sex==="M"
+      ? `<path d="M${cx-58} ${a.hip-20} h116 l-6 ${a.ankle-a.hip+10} h-40 l-12 -${a.ankle-a.hip-60} l-12 ${a.ankle-a.hip-60} h-40 z" fill="#475569"/>`
+      : `<path d="M${cx-60} ${a.hip-20} h120 l22 170 h-164 z" fill="#475569"/><path d="M${cx-60} ${a.hip-20} h120" stroke="#334155" stroke-width="8"/>`}
+    <!-- 목 -->
+    <rect x="${cx-17}" y="150" width="34" height="62" rx="12" fill="${a.skin}"/>`;
+  return {hair: sex==="M"?hairM:hairF};
+}
+function headSvg(sex){
+  const a=AV[sex], cx=200;
+  return `<g>
+    ${sex==="F"?`<path d="M146 112c-4 50 0 90-10 120 22 8 44 2 54-6l-2-80z M254 112c4 50 0 90 10 120-22 8-44 2-54-6l2-80z" fill="${a.hair}"/>`:""}
+    <ellipse cx="${cx}" cy="108" rx="54" ry="64" fill="${a.skin}"/>
+    <ellipse cx="${cx-54}" cy="112" rx="9" ry="14" fill="${a.skin}"/><ellipse cx="${cx+54}" cy="112" rx="9" ry="14" fill="${a.skin}"/>
+    <circle cx="${cx-19}" cy="112" r="5" fill="#1f2937"/><circle cx="${cx+19}" cy="112" r="5" fill="#1f2937"/>
+    <path d="M${cx-10} 140 q10 8 20 0" stroke="#b45309" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="${cx-32}" cy="130" rx="9" ry="5" fill="#fca5a5" opacity=".5"/><ellipse cx="${cx+32}" cy="130" rx="9" ry="5" fill="#fca5a5" opacity=".5"/>
+    ${sex==="M"
+      ? `<path d="M144 100c-4-50 22-78 56-78s62 26 56 78c-4-18-10-30-22-36-20 10-52 12-78 4-6 8-10 20-12 32z" fill="${a.hair}"/>`
+      : `<path d="M142 118c-6-62 24-94 58-94s64 32 58 94c-8-26-20-44-36-52-10 18-44 30-76 26-2 8-4 16-4 26z" fill="${a.hair}"/>`}
+  </g>`;
+}
+function drawAvatar(svg,sex){
+  svg.innerHTML="";
+  const g=document.createElementNS(NS,"g");svg.appendChild(g);
+  const a=AV[sex];
+  baseBody(g,sex,{top:S.wear.top,outer:S.wear.outer,bottom:S.wear.bottom});
+  const clothes=document.createElementNS(NS,"g");svg.appendChild(clothes);
+  for(const layer of LAYER_ORDER){
+    const it=byId(S.wear[layer]); if(!it||!it.src) continue;
+    const s=(it.s||1)*(a.shW/190);
+    const im=document.createElementNS(NS,"image");
+    im.setAttribute("href",it.src);
+    let x=200-it.ax*s, y, w=it.w*s, h=it.h*s;
+    if(layer==="bottom"){
+      y=a.hip-18;
+      if(it.fit==="long"){h=a.ankle+6-y}
+    }else{
+      y=210-it.ay*s;
+    }
+    im.setAttribute("x",x);im.setAttribute("y",y);im.setAttribute("width",w);im.setAttribute("height",h);
+    im.setAttribute("preserveAspectRatio","none");
+    if(layer==="top"&&S.wear.outer){ // 겉옷 안에 입은 상의는 가운데만 보이게
+      const id="clip"+sex;let cp=svg.querySelector("#"+id);
+      if(!cp){cp=document.createElementNS(NS,"clipPath");cp.id=id;cp.innerHTML=`<rect x="${200-a.shW*0.3}" y="0" width="${a.shW*0.6}" height="900"/>`;svg.appendChild(cp)}
+      im.setAttribute("clip-path",`url(#${id})`);
+    }
+    clothes.appendChild(im);
+  }
+  const head=document.createElementNS(NS,"g");head.innerHTML=headSvg(sex);svg.appendChild(head);
+}
+function drawAll(){drawAvatar($("#avM"),"M");drawAvatar($("#avF"),"F");renderSlots();store.set("wear",S.wear)}
+
+/* ---------- 카탈로그 ---------- */
+function visibleItems(){
+  return S.items.filter(it=>(S.co==="all"||it.co===S.co)&&(S.cat==="전체"||it.cat===S.cat));
+}
+function renderTabs(){
+  const cos=["all",...Object.keys(COMPANIES)];
+  $("#coTabs").innerHTML=cos.map(c=>{
+    const n=S.items.filter(i=>c==="all"||i.co===c).length;
+    return `<button class="tab ${S.co===c?"on":""}" data-co="${c}">${c==="all"?"전체":coLabel(c)}<span class="cnt">${n}</span></button>`}).join("");
+  $("#catChips").innerHTML=CAT_FILTERS.map(c=>{
+    const cc=CATS.find(x=>x.k===c);
+    return `<button class="chip ${S.cat===c?"on":""}" data-cat="${c}">${cc?`<i class="dot" style="background:${cc.color}"></i>`:""}${c}</button>`}).join("");
+}
+function renderGrid(){
+  const list=visibleItems();
+  const g=$("#grid");
+  if(!list.length){g.innerHTML=`<div class="empty">이 조건의 디자인이 없어요.</div>`;return}
+  g.innerHTML=list.map(it=>{
+    const on=Object.values(S.wear).includes(it.id);
+    const cc=CATS.find(x=>x.k===it.cat);
+    return `<div class="card ${on?"on":""}" data-id="${it.id}">
+      <span class="badge" style="background:${cc?cc.color:"#64748b"}">${LAYERS[it.layer]}</span>
+      <button class="heart ${S.hearts.has(it.id)?"on":""}" data-heart="${it.id}" title="찜">${S.hearts.has(it.id)?"♥":"♡"}</button>
+      <div class="ph"><img loading="lazy" src="${it.thumb||it.src}" alt=""></div>
+      <div class="cap"><b>${esc(coLabel(it.co))} · ${esc(it.cat)}${it.layer==="bottom"?" 하의":""}</b><span>${esc(it.no)}</span></div>
+    </div>`}).join("");
+}
+function renderSlots(){
+  $("#slots").innerHTML=["outer","top","bottom"].map(l=>{
+    const it=byId(S.wear[l]);
+    return it?`<div class="slot filled"><img src="${it.thumb||it.src}"><div><div class="t">${LAYERS[l]}</div><div class="n">${esc(coLabel(it.co))}<br>${esc(it.cat)} ${esc(it.no)}</div></div><button class="x" data-off="${l}">✕</button></div>`
+             :`<div class="slot"><div><div class="t">${LAYERS[l]}</div><div class="n" style="color:#98a2b3;font-weight:500">목록에서<br>골라 보세요</div></div></div>`}).join("");
+  $("#heartCnt").textContent=S.hearts.size;
+}
+function refresh(){renderTabs();renderGrid();drawAll()}
+
+
+/* ---------- 이미지 묶음(pack) 불러오기 ---------- */
+const _chunkWait={};
+function loadScript(src){return new Promise((ok,no)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=()=>no(new Error(src));document.head.appendChild(s)})}
+function loadChunk(key){
+  if(!_chunkWait[key])_chunkWait[key]=loadScript(`pack/i_${key}.js`).then(()=>{S.items.forEach(it=>{if(it.chunk===key&&window.UF_IM?.[it.id])it.src=window.UF_IM[it.id]})});
+  return _chunkWait[key];
+}
+async function ensureFull(it){if(it&&!it.src&&it.chunk)await loadChunk(it.chunk)}
+async function loadThumbs(){
+  await Promise.all(Object.keys(COMPANIES).map(c=>loadScript(`pack/t_${c}.js`).catch(e=>console.warn(e))));
+  S.items.forEach(it=>{if(!it.thumb&&window.UF_TH?.[it.id])it.thumb=window.UF_TH[it.id]});
+}
+async function wearItem(id){
+  const it=byId(id);if(!it)return;
+  if(S.wear[it.layer]===id){S.wear[it.layer]=null}else{try{await ensureFull(it)}catch(e){toast("이미지를 불러오지 못했어요");return}S.wear[it.layer]=id}
+  drawAll();renderGrid();
+}
+
+/* ---------- 이벤트 ---------- */
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-co],[data-cat],[data-heart],.card,[data-off],[data-close],[data-at],[data-wear],[data-del]");
+  if(!t)return;
+  if(t.dataset.co){S.co=t.dataset.co;renderTabs();renderGrid();$("#grid").scrollTop=0}
+  else if(t.dataset.cat){S.cat=t.dataset.cat;renderTabs();renderGrid();$("#grid").scrollTop=0}
+  else if(t.dataset.heart){const id=t.dataset.heart;S.hearts.has(id)?S.hearts.delete(id):S.hearts.add(id);store.set("hearts",[...S.hearts]);renderGrid();renderSlots()}
+  else if(t.dataset.off){S.wear[t.dataset.off]=null;drawAll();renderGrid()}
+  else if(t.dataset.close!==undefined){t.closest(".modal").classList.add("hidden")}
+  else if(t.dataset.at){$$(".admin-tabs button").forEach(b=>b.classList.toggle("on",b===t));$$("[data-ap]").forEach(p=>p.classList.toggle("hidden",p.dataset.ap!==t.dataset.at))}
+  else if(t.dataset.wear){wearItem(t.dataset.wear);$("#mMine").classList.add("hidden")}
+  else if(t.dataset.del){deleteCustom(t.dataset.del)}
+  else if(t.classList.contains("card")){wearItem(t.dataset.id)}
+});
+$$(".modal").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)m.classList.add("hidden")}));
+$("#btnReset").onclick=()=>{S.wear={outer:null,top:null,bottom:null};drawAll();renderGrid()};
+$("#btnMine").onclick=()=>{
+  const arr=[...S.hearts].map(byId).filter(Boolean);
+  $("#mineList").innerHTML=arr.length?arr.map(it=>`<div class="r" data-wear="${it.id}" style="cursor:pointer"><img src="${it.thumb||it.src}"><div><b style="font-size:13px">${esc(coLabel(it.co))}</b><small>${esc(it.cat)} ${esc(it.no)}</small></div></div>`).join(""):`<div class="empty" style="padding:30px">아직 찜한 디자인이 없어요. 카드의 ♡를 눌러 보세요.</div>`;
+  $("#mMine").classList.remove("hidden");
+};
+$("#btnSubmit").onclick=()=>{
+  if(!S.voteOpen){toast("지금은 투표 기간이 아니에요");return}
+  if(!S.wear.outer&&!S.wear.top&&!S.wear.bottom){toast("먼저 옷을 하나 이상 입혀 주세요");return}
+  $("#votePreview").innerHTML=["outer","top","bottom"].map(l=>{const it=byId(S.wear[l]);return `<div>${it?`<img src="${it.thumb||it.src}">${esc(coLabel(it.co))} ${esc(it.cat)}`:`<div style="height:70px;display:flex;align-items:center;justify-content:center;color:#98a2b3">없음</div>`}<br><b>${LAYERS[l]}</b></div>`}).join("");
+  $("#mVote").classList.remove("hidden");
+};
+$("#btnVoteGo").onclick=async()=>{
+  const v={outer:S.wear.outer||null,top:S.wear.top||null,bottom:S.wear.bottom||null,hearts:[...S.hearts].slice(0,30),
+    grade:$("#vGrade").value,gender:$("#vGender").value,comment:$("#vComment").value.trim().slice(0,80),ts:Date.now()};
+  try{$("#btnVoteGo").disabled=true;await saveVote(v);$("#mVote").classList.add("hidden");toast("제출 완료! 고마워요 🙌")}
+  catch(e){console.error(e);toast("제출 실패 — 잠시 후 다시 시도해 주세요")}
+  finally{$("#btnVoteGo").disabled=false}
+};
+
+/* ---------- 관리자 ---------- */
+$("#btnAdmin").onclick=()=>{$("#setBlind").checked=S.blind;$("#setVoteOpen").checked=S.voteOpen;renderCustomList();$("#mAdmin").classList.remove("hidden");renderStats()};
+$("#setBlind").onchange=async e=>{S.blind=e.target.checked;await saveSettings();refresh();toast(S.blind?"블라인드 모드 켜짐":"회사 이름 표시")};
+$("#setVoteOpen").onchange=async e=>{S.voteOpen=e.target.checked;await saveSettings();toast(S.voteOpen?"투표 열림":"투표 닫힘")};
+$("#btnRefresh").onclick=renderStats;
+$("#hashBtn").onclick=async()=>{const v=$("#hashIn").value.trim();if(!v)return;$("#hashOut").innerHTML=`<b style="user-select:all;word-break:break-all">${await sha(v)}</b><br>이 값을 index.html의 STUDENT_HASH(학생) 또는 ADMIN_HASH(선생님)에 붙여 넣으세요.`};
+let lastVotes=[];
+async function renderStats(){
+  $("#statBody").innerHTML="불러오는 중…";
+  try{lastVotes=await loadVotes()}catch(e){$("#statBody").innerHTML="투표를 불러오지 못했어요. Firestore 보안 규칙을 확인하세요.";return}
+  const V=lastVotes;
+  $("#statInfo").textContent=db?"Firestore 실시간 집계":"로컬 모드: 이 기기의 제출만 보여요";
+  const cnt={};V.forEach(v=>["outer","top","bottom"].forEach(l=>{if(v[l])cnt[v[l]]=(cnt[v[l]]||0)+1}));
+  const coCnt={};Object.entries(cnt).forEach(([id,n])=>{const it=byId(id);if(it)coCnt[it.co]=(coCnt[it.co]||0)+n});
+  const coTxt=Object.keys(COMPANIES).map(c=>`${COMPANIES[c].name}(${COMPANIES[c].blind}) ${coCnt[c]||0}`).join(" · ");
+  $("#statCards").innerHTML=`<div class="stat"><b>${V.length}</b><span>제출 수</span></div>
+    <div class="stat"><b>${V.filter(v=>v.gender==="남").length} / ${V.filter(v=>v.gender==="여").length}</b><span>남 / 여</span></div>
+    <div class="stat"><b>${[1,2,3].map(g=>V.filter(v=>v.grade==String(g)).length).join("·")}</b><span>1·2·3학년</span></div>
+    <div class="stat"><b style="font-size:14px;line-height:1.5">${coTxt}</b><span>회사별 득표(실명·블라인드)</span></div>`;
+  let html="";
+  for(const l of ["outer","top","bottom"]){
+    const arr=Object.entries(cnt).map(([id,n])=>({it:byId(id),n})).filter(x=>x.it&&x.it.layer===l).sort((a,b)=>b.n-a.n).slice(0,12);
+    const max=arr[0]?.n||1;
+    html+=`<h3>${LAYERS[l]} 순위</h3><div class="rank">${arr.length?arr.map((x,i)=>`<div class="r"><span class="no">${i+1}</span><img src="${x.it.thumb||x.it.src}"><div style="flex:1;min-width:0"><b style="font-size:13px">${COMPANIES[x.it.co].name}</b><small>${esc(x.it.cat)} ${esc(x.it.no)} · ${x.n}표</small><div class="bar"><i style="width:${x.n/max*100}%"></i></div></div></div>`).join(""):`<span class="note">아직 없음</span>`}</div>`;
+  }
+  const combo={};V.forEach(v=>{const k=[v.outer,v.top,v.bottom].join("|");combo[k]=(combo[k]||0)+1});
+  const cArr=Object.entries(combo).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const img=id=>{const it=byId(id);return it?`<img src="${it.thumb||it.src}" title="${COMPANIES[it.co].name} ${it.cat} ${it.no}"><br><small>${COMPANIES[it.co].name} ${esc(it.no)}</small>`:"-"};
+  html+=`<h3>인기 조합 TOP 10</h3><table class="combo"><tr><th>#</th><th>겉옷</th><th>상의</th><th>하의</th><th>표</th></tr>${cArr.map(([k,n],i)=>{const [o,t,b]=k.split("|");return `<tr><td>${i+1}</td><td>${img(o)}</td><td>${img(t)}</td><td>${img(b)}</td><td><b>${n}</b></td></tr>`}).join("")}</table>`;
+  const cm=V.filter(v=>v.comment).slice(-30).reverse();
+  if(cm.length)html+=`<h3>학생 한마디</h3><div class="note">${cm.map(v=>`· ${esc(v.comment)} <span style="color:#98a2b3">(${v.grade||"-"}학년 ${v.gender||""})</span>`).join("<br>")}</div>`;
+  $("#statBody").innerHTML=html;
+}
+$("#btnCsv").onclick=()=>{
+  const name=id=>{const it=byId(id);return it?`${COMPANIES[it.co].name} ${it.cat}${it.layer==="bottom"?"(하의)":""} ${it.no}`:""};
+  const rows=[["제출시각","학년","성별","겉옷","상의","하의","한마디"]].concat(lastVotes.map(v=>[new Date(v.ts).toLocaleString("ko-KR"),v.grade,v.gender,name(v.outer),name(v.top),name(v.bottom),v.comment||""]));
+  const csv="﻿"+rows.map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="교복투표결과.csv";a.click();
+};
+function renderCustomList(){
+  const arr=S.items.filter(i=>i.custom);
+  $("#customList").innerHTML=arr.length?arr.map(it=>`<div class="r"><img src="${it.thumb||it.src}"><div style="flex:1"><b style="font-size:13px">${COMPANIES[it.co].name}</b><small>${esc(it.cat)} ${esc(it.no)}</small></div><button class="btn line sm" data-del="${it.id}">삭제</button></div>`).join(""):`<span class="note">PDF에서 추가한 디자인이 없어요.</span>`;
+}
+async function deleteCustom(id){
+  if(!confirm("이 디자인을 삭제할까요?"))return;
+  if(db){try{await fs.deleteDoc(fs.doc(db,col("items"),id))}catch(e){toast("삭제 실패");return}}
+  else store.set("customItems",store.get("customItems",[]).filter(x=>x.id!==id));
+  S.items=S.items.filter(i=>i.id!==id);Object.keys(S.wear).forEach(l=>{if(S.wear[l]===id)S.wear[l]=null});
+  renderCustomList();refresh();
+}
+
+/* ---------- PDF로 디자인 추가 ---------- */
+const KEYWORDS=["후드집업","집업","후드","맨투맨","야구","점퍼","스타디움","체육복","트레이닝","활동복","반팔","긴팔","HOOD","ZIP","JUMPER","SWEAT","MTM"];
+let pdfLib=null, pdfDoc=null, pdfPageImg=null, pdfBox=null;
+$("#pCo").innerHTML=Object.entries(COMPANIES).map(([k,v])=>`<option value="${k}">${v.name}</option>`).join("");
+$("#pCat").innerHTML=CATS.map((c,i)=>`<option value="${i}">${c.k}${c.sub?" "+c.sub:""} (${LAYERS[c.layer]})</option>`).join("");
+async function ensurePdfJs(){
+  if(pdfLib)return pdfLib;
+  pdfLib=await import("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs");
+  pdfLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
+  return pdfLib;
+}
+$("#pFile").onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  $("#pInfo").textContent="PDF 읽는 중…";$("#pPages").innerHTML="";$("#pCropWrap").classList.add("hidden");
+  try{
+    const lib=await ensurePdfJs();
+    pdfDoc=await lib.getDocument({data:await f.arrayBuffer()}).promise;
+    let hits=0, noText=0;
+    for(let p=1;p<=pdfDoc.numPages;p++){
+      const page=await pdfDoc.getPage(p);
+      const tc=await page.getTextContent();const txt=tc.items.map(i=>i.str).join("").replace(/\s/g,"");
+      if(txt.length<3)noText++;
+      const hit=KEYWORDS.some(k=>txt.toUpperCase().includes(k.toUpperCase()));if(hit)hits++;
+      const vp=page.getViewport({scale:0.18});const c=document.createElement("canvas");c.width=vp.width;c.height=vp.height;
+      await page.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;
+      const d=document.createElement("div");d.className="pg"+(hit?" hit":"");d.dataset.p=p;d.dataset.hit=hit?1:0;d.dataset.notext=txt.length<3?1:0;
+      d.innerHTML=`<img src="${c.toDataURL("image/jpeg",.7)}"><span>${p}쪽${hit?" · 품목":""}</span>`;
+      d.onclick=()=>openPdfPage(p,d);
+      $("#pPages").appendChild(d);
+      $("#pInfo").textContent=`${p}/${pdfDoc.numPages}쪽 읽는 중…`;
+    }
+    const allImage=noText>pdfDoc.numPages*0.8;
+    if(allImage){$("#pOnlyHit").checked=false}
+    applyHitFilter();
+    $("#pInfo").innerHTML=allImage?`총 ${pdfDoc.numPages}쪽 · <b>글자가 없는 PDF</b>라 자동 추천이 안 돼요. 페이지를 직접 골라 주세요.`:`총 ${pdfDoc.numPages}쪽 · 품목 글자가 있는 페이지 <b>${hits}</b>쪽 (주황 테두리)`;
+  }catch(err){console.error(err);$("#pInfo").textContent="PDF를 열지 못했어요: "+err.message}
+};
+function applyHitFilter(){const only=$("#pOnlyHit").checked;$$("#pPages .pg").forEach(d=>d.classList.toggle("hidden",only&&d.dataset.hit!=="1"))}
+$("#pOnlyHit").onchange=applyHitFilter;
+async function openPdfPage(p,el){
+  $$("#pPages .pg").forEach(d=>d.classList.toggle("on",d===el));
+  const page=await pdfDoc.getPage(p);const vp0=page.getViewport({scale:1});
+  const scale=Math.min(2.2,2200/vp0.width);const vp=page.getViewport({scale});
+  const c=$("#pCanvas");c.width=vp.width;c.height=vp.height;
+  await page.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;
+  pdfPageImg={p,canvas:c};pdfBox=null;$("#pBox").classList.add("hidden");$("#pSave").disabled=true;
+  const pv=$("#pPrev");pv.width=pv.height=1;
+  $("#pCropWrap").classList.remove("hidden");$("#pCropWrap").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+(function cropDrag(){
+  const c=$("#pCanvas"),box=$("#pBox");let st=null;
+  const pos=e=>{const r=c.getBoundingClientRect();const pt=e.touches?e.touches[0]:e;return{x:(pt.clientX-r.left)*c.width/r.width,y:(pt.clientY-r.top)*c.height/r.height,ox:pt.clientX-r.left,oy:pt.clientY-r.top,r}};
+  const down=e=>{e.preventDefault();st=pos(e)};
+  const move=e=>{if(!st)return;const p=pos(e);const x=Math.min(st.ox,p.ox),y=Math.min(st.oy,p.oy);
+    box.style.left=(x+c.offsetLeft)+"px";box.style.top=(y+c.offsetTop)+"px";box.style.width=Math.abs(p.ox-st.ox)+"px";box.style.height=Math.abs(p.oy-st.oy)+"px";box.classList.remove("hidden");
+    pdfBox={x:Math.min(st.x,p.x),y:Math.min(st.y,p.y),w:Math.abs(p.x-st.x),h:Math.abs(p.y-st.y)}};
+  const up=()=>{if(!st)return;st=null;if(pdfBox&&pdfBox.w>20&&pdfBox.h>20){makeCutout();$("#pSave").disabled=false}};
+  c.addEventListener("mousedown",down);window.addEventListener("mousemove",move);window.addEventListener("mouseup",up);
+  c.addEventListener("touchstart",down,{passive:false});window.addEventListener("touchmove",move,{passive:false});window.addEventListener("touchend",up);
+})();
+$("#pTol").oninput=()=>{if(pdfBox)makeCutout()};
+let cutCanvas=null;
+function makeCutout(){
+  // 테두리에서부터 비슷한 색을 지우는 방식(flood fill)의 간단한 배경 제거
+  const b=pdfBox, src=pdfPageImg.canvas;
+  const w=Math.round(b.w),h=Math.round(b.h);
+  const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");
+  x.drawImage(src,b.x,b.y,b.w,b.h,0,0,w,h);
+  const tol=+$("#pTol").value;
+  if(tol>0){
+    const d=x.getImageData(0,0,w,h),px=d.data,seen=new Uint8Array(w*h),q=[];
+    const at=i=>[px[i*4],px[i*4+1],px[i*4+2]];
+    for(let i=0;i<w;i++){q.push(i,(h-1)*w+i)}for(let j=0;j<h;j++){q.push(j*w,j*w+w-1)}
+    const ref=q.map(at);
+    const near=(i,r)=>Math.abs(px[i*4]-r[0])+Math.abs(px[i*4+1]-r[1])+Math.abs(px[i*4+2]-r[2])<=tol*3;
+    const stack=q.map((i,k)=>[i,ref[k]]);
+    while(stack.length){const [i,r]=stack.pop();if(seen[i])continue;if(!near(i,r))continue;seen[i]=1;px[i*4+3]=0;
+      const X=i%w,Y=(i/w)|0;
+      if(X>0)stack.push([i-1,r]);if(X<w-1)stack.push([i+1,r]);if(Y>0)stack.push([i-w,r]);if(Y<h-1)stack.push([i+w,r]);}
+    x.putImageData(d,0,0);
+  }
+  // 최대 높이 700px로 축소
+  const k=Math.min(1,700/h);cutCanvas=document.createElement("canvas");cutCanvas.width=Math.round(w*k);cutCanvas.height=Math.round(h*k);
+  cutCanvas.getContext("2d").drawImage(c,0,0,cutCanvas.width,cutCanvas.height);
+  const pv=$("#pPrev");pv.width=cutCanvas.width;pv.height=cutCanvas.height;pv.getContext("2d").drawImage(cutCanvas,0,0);
+}
+$("#pSave").onclick=async()=>{
+  if(!cutCanvas)return;
+  const cat=CATS[+$("#pCat").value], co=$("#pCo").value;
+  let url=cutCanvas.toDataURL("image/webp",0.82);
+  if(url.length>900000)url=cutCanvas.toDataURL("image/webp",0.6);
+  const w=cutCanvas.width,h=cutCanvas.height;
+  const n=S.items.filter(i=>i.co===co&&i.custom).length+1;
+  // 상의/겉옷: 위쪽이 어깨선이라고 보고 폭을 어깨 너비에 맞춤 / 하의: 위쪽이 허리
+  const it={co,cat:cat.k,layer:cat.layer,src:url,w,h,ax:w/2,ay:h*0.04,s:(cat.layer==="bottom"?130:200)/w,fit:cat.k==="긴팔체육복"?"long":"short",no:`추가${n}`,page:pdfPageImg.p,ts:Date.now()};
+  try{
+    let id;
+    if(db){const r=await fs.addDoc(fs.collection(db,col("items")),it);id=r.id}
+    else{id="c"+Date.now();const arr=store.get("customItems",[]);arr.push({...it,id});store.set("customItems",arr)}
+    S.items.push({...it,id,custom:true});refresh();toast("디자인을 추가했어요");
+  }catch(e){console.error(e);toast("저장 실패: "+(e.message||""))}
+};
+
+/* ---------- 시작 ---------- */
+async function enter(role){
+  $("#gate").classList.add("hidden");
+  S.isAdmin=role==="admin";$("#btnAdmin").classList.toggle("hidden",!S.isAdmin);
+  $("#grid").innerHTML='<div class="empty">디자인 불러오는 중…</div>';
+  await Promise.all([loadThumbs(),(async()=>{await initFirebase();await loadSettings();await loadCustomItems()})()]);
+  await Promise.all(Object.values(S.wear).map(id=>ensureFull(byId(id)).catch(()=>{})));
+  refresh();
+}
+async function tryCode(){
+  const h=await sha($("#gateCode").value);
+  if(h===CONFIG.ADMIN_HASH){store.set("role","admin");enter("admin")}
+  else if(h===CONFIG.STUDENT_HASH){store.set("role","student");enter("student")}
+  else{$("#gateErr").textContent="코드가 맞지 않아요.";$("#gateCode").select()}
+}
+$("#gateBtn").onclick=tryCode;
+$("#btnOut").onclick=()=>{store.set("role",null);location.reload()};
+$("#gateCode").onkeydown=e=>{if(e.key==="Enter")tryCode()};
+const saved=store.get("role",null);
+if(saved) enter(saved); else $("#gateCode").focus();
+</script>
+</body>
+</html>
