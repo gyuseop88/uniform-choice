@@ -218,7 +218,7 @@ table.combo img{height:44px;object-fit:contain;vertical-align:middle}
       <select id="vGender"><option value="">선택 안 함</option><option>남</option><option>여</option></select>
     </div>
     <div class="row"><label>한마디</label><input type="text" id="vComment" maxlength="80" placeholder="고른 이유 (선택)"></div>
-    <p class="note">이름은 받지 않아요. 한 기기에서 다시 제출하면 <b>마지막 제출</b>만 집계됩니다.</p>
+    <p class="note" id="voteNote">이름은 받지 않아요.</p>
     <div class="actions"><button class="btn red" id="btnVoteGo">제출하기</button></div>
   </div>
 </div>
@@ -350,6 +350,7 @@ const S = {
   co: "all", cat: "전체",
   wear: store.get("wear",{outer:null,top:null,bottom:null}),
   hearts: new Set(store.get("hearts",[])),
+  mine: store.get("mine",[]),
   blind: true, voteOpen: true, isAdmin:false,
 };
 const byId = id=>S.items.find(i=>i.id===id);
@@ -383,13 +384,14 @@ async function loadCustomItems(){
   else arr = store.get("customItems",[]).map(x=>({...x,custom:true}));
   S.items = S.items.filter(i=>!i.custom).concat(arr);
 }
-async function saveVote(v){
-  if(db){await fs.setDoc(fs.doc(db,col("votes"),deviceId),v);return}
-  const all=store.get("votes",{});all[deviceId]=v;store.set("votes",all);
+const MAX_VOTES = 5;   // 한 기기에서 낼 수 있는 조합 수
+async function saveVote(v,docId){
+  if(db){await fs.setDoc(fs.doc(db,col("votes"),docId),v);return}
+  const all=store.get("votes",{});all[docId]=v;store.set("votes",all);
 }
 async function loadVotes(){
-  if(db){const q=await fs.getDocs(fs.collection(db,col("votes")));const a=[];q.forEach(d=>a.push(d.data()));return a}
-  return Object.values(store.get("votes",{}));
+  if(db){const q=await fs.getDocs(fs.collection(db,col("votes")));const a=[];q.forEach(d=>a.push({...d.data(),_id:d.id}));return a}
+  return Object.entries(store.get("votes",{})).map(([k,v])=>({...v,_id:k}));
 }
 
 /* ---------- 아바타 ---------- */
@@ -502,6 +504,7 @@ function renderSlots(){
     return it?`<div class="slot filled"><img src="${it.thumb||it.src}"><div><div class="t">${LAYERS[l]}</div><div class="n">${esc(coLabel(it.co))}<br>${esc(it.cat)} ${esc(it.no)}</div></div><button class="x" data-off="${l}">✕</button></div>`
              :`<div class="slot"><div><div class="t">${LAYERS[l]}</div><div class="n" style="color:#98a2b3;font-weight:500">목록에서<br>골라 보세요</div></div></div>`}).join("");
   $("#heartCnt").textContent=S.hearts.size;
+  $("#btnSubmit").textContent=S.mine.length?`🗳 이 조합도 투표 (${S.mine.length}/${MAX_VOTES})`:"🗳 이 조합으로 투표";
 }
 function refresh(){renderTabs();renderGrid();drawAll()}
 
@@ -548,13 +551,26 @@ $("#btnMine").onclick=()=>{
 $("#btnSubmit").onclick=()=>{
   if(!S.voteOpen){toast("지금은 투표 기간이 아니에요");return}
   if(!S.wear.outer&&!S.wear.top&&!S.wear.bottom){toast("먼저 옷을 하나 이상 입혀 주세요");return}
+  if(S.mine.length>=MAX_VOTES){toast(`조합은 최대 ${MAX_VOTES}개까지 낼 수 있어요`);return}
+  if(S.mine.some(m=>m.key===comboKey(S.wear))){toast("이미 제출한 조합이에요");return}
   $("#votePreview").innerHTML=["outer","top","bottom"].map(l=>{const it=byId(S.wear[l]);return `<div>${it?`<img src="${it.thumb||it.src}">${esc(coLabel(it.co))} ${esc(it.cat)}`:`<div style="height:70px;display:flex;align-items:center;justify-content:center;color:#98a2b3">없음</div>`}<br><b>${LAYERS[l]}</b></div>`}).join("");
+  $("#voteNote").innerHTML=`이름은 받지 않아요. 마음에 드는 조합을 <b>최대 ${MAX_VOTES}개</b>까지 낼 수 있어요. (지금까지 ${S.mine.length}개 제출)`;
   $("#mVote").classList.remove("hidden");
 };
+function comboKey(w){return [w.outer,w.top,w.bottom].join("|")}
 $("#btnVoteGo").onclick=async()=>{
   const v={outer:S.wear.outer||null,top:S.wear.top||null,bottom:S.wear.bottom||null,hearts:[...S.hearts].slice(0,30),
     grade:$("#vGrade").value,gender:$("#vGender").value,comment:$("#vComment").value.trim().slice(0,80),ts:Date.now()};
-  try{$("#btnVoteGo").disabled=true;await saveVote(v);$("#mVote").classList.add("hidden");toast("제출 완료! 고마워요 🙌")}
+  const key=comboKey(v);
+  if(S.mine.some(m=>m.key===key)){toast("이미 제출한 조합이에요");return}
+  if(S.mine.length>=MAX_VOTES){toast(`조합은 최대 ${MAX_VOTES}개까지 낼 수 있어요`);return}
+  const docId=`${deviceId}_${S.mine.length+1}`;
+  try{
+    $("#btnVoteGo").disabled=true;await saveVote(v,docId);
+    S.mine.push({id:docId,key,ts:v.ts});store.set("mine",S.mine);
+    $("#mVote").classList.add("hidden");renderSlots();
+    toast(`${S.mine.length}번째 조합 제출 완료! 고마워요 🙌`);
+  }
   catch(e){console.error(e);toast("제출 실패 — 잠시 후 다시 시도해 주세요")}
   finally{$("#btnVoteGo").disabled=false}
 };
@@ -574,7 +590,8 @@ async function renderStats(){
   const cnt={};V.forEach(v=>["outer","top","bottom"].forEach(l=>{if(v[l])cnt[v[l]]=(cnt[v[l]]||0)+1}));
   const coCnt={};Object.entries(cnt).forEach(([id,n])=>{const it=byId(id);if(it)coCnt[it.co]=(coCnt[it.co]||0)+n});
   const coTxt=Object.keys(COMPANIES).map(c=>`${COMPANIES[c].name}(${COMPANIES[c].blind}) ${coCnt[c]||0}`).join(" · ");
-  $("#statCards").innerHTML=`<div class="stat"><b>${V.length}</b><span>제출 수</span></div>
+  const devs=new Set(V.map(v=>String(v._id||"").split("_")[0])).size;
+  $("#statCards").innerHTML=`<div class="stat"><b>${V.length}</b><span>제출 조합 수 <small>(참여 ${devs}명)</small></span></div>
     <div class="stat"><b>${V.filter(v=>v.gender==="남").length} / ${V.filter(v=>v.gender==="여").length}</b><span>남 / 여</span></div>
     <div class="stat"><b>${[1,2,3].map(g=>V.filter(v=>v.grade==String(g)).length).join("·")}</b><span>1·2·3학년</span></div>
     <div class="stat"><b style="font-size:14px;line-height:1.5">${coTxt}</b><span>회사별 득표(실명·블라인드)</span></div>`;
